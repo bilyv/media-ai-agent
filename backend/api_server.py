@@ -12,10 +12,23 @@ DOWNLOADER_PATH = Path(__file__).parent / "instagram agent" / "instagram_downloa
 GRABBER_PATH = Path(__file__).parent / "link grabber agent" / "link-clipboard.py"
 
 class APIHandler(BaseHTTPRequestHandler):
+    def send_cors_headers(self):
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+        self.send_header('Access-Control-Allow-Headers', 'Content-Type')
+    
+    def do_OPTIONS(self):
+        self.send_response(200)
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+        self.send_header('Access-Control-Allow-Headers', 'Content-Type')
+        self.end_headers()
+    
     def do_GET(self):
         if self.path == '/api/links':
             self.send_response(200)
             self.send_header('Content-Type', 'application/json')
+            self.send_cors_headers()
             self.end_headers()
             
             links = []
@@ -29,6 +42,7 @@ class APIHandler(BaseHTTPRequestHandler):
         elif self.path == '/api/stats':
             self.send_response(200)
             self.send_header('Content-Type', 'application/json')
+            self.send_cors_headers()
             self.end_headers()
             
             stats = {'pending': 0, 'downloading': 0, 'done': 0, 'failed': 0}
@@ -43,12 +57,14 @@ class APIHandler(BaseHTTPRequestHandler):
             self.wfile.write(json.dumps(stats).encode())
         else:
             self.send_response(404)
+            self.send_cors_headers()
             self.end_headers()
     
     def do_POST(self):
         if self.path == '/api/download':
             self.send_response(200)
             self.send_header('Content-Type', 'application/json')
+            self.send_cors_headers()
             self.end_headers()
             
             try:
@@ -66,6 +82,7 @@ class APIHandler(BaseHTTPRequestHandler):
         elif self.path == '/api/grab':
             self.send_response(200)
             self.send_header('Content-Type', 'application/json')
+            self.send_cors_headers()
             self.end_headers()
             
             try:
