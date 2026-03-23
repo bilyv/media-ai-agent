@@ -28,3 +28,12 @@ export const addLink = async (link) => {
   });
   return res.json();
 };
+
+export const downloadSingle = async (link) => {
+  const res = await fetch(`${API_BASE}/download-single`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ link })
+  });
+  return res.json();
+};

@@ -81,6 +81,16 @@ def download_video(url, video_num, index, total):
     
     output_template = str(DOWNLOAD_FOLDER / f"video_{video_num}")
     
+    browsers = ['edge', 'chrome', 'firefox', 'brave']
+    cookies_opts = None
+    
+    for browser in browsers:
+        try:
+            cookies_opts = {'cookiesfrombrowser': (browser, None, None, None)}
+            break
+        except:
+            continue
+    
     ydl_opts = {
         'outtmpl': output_template + '.%(ext)s',
         'format': 'best[ext=mp4]/bestvideo+bestaudio/best',
@@ -89,6 +99,9 @@ def download_video(url, video_num, index, total):
         'extract_flat': False,
         'write_description': True,
     }
+    
+    if cookies_opts:
+        ydl_opts.update(cookies_opts)
     
     for attempt in range(1, MAX_RETRIES + 1):
         try:

@@ -313,6 +313,34 @@ td a:hover {
   cursor: not-allowed;
 }
 
+.btn-download {
+  padding: 6px 12px;
+  background: #000;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.btn-download:hover {
+  background: #333;
+  color: #fff;
+}
+
+.btn-download:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.actions-cell {
+  display: flex;
+  gap: 8px;
+}
+
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);

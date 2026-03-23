@@ -136,6 +136,33 @@ class APIHandler(BaseHTTPRequestHandler):
                 response = {'success': False, 'error': str(e)}
             
             self.wfile.write(json.dumps(response).encode())
+            
+        elif self.path == '/api/download-single':
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json')
+            self.send_cors_headers()
+            self.end_headers()
+            
+            try:
+                content_length = int(self.headers.get('Content-Length', 0))
+                post_data = self.rfile.read(content_length).decode('utf-8')
+                data = json.loads(post_data)
+                link = data.get('link', '').strip()
+                
+                if not link:
+                    response = {'success': False, 'error': 'No link provided'}
+                else:
+                    result = subprocess.run(
+                        [sys.executable, str(DOWNLOADER_PATH), "--from-csv"],
+                        capture_output=True,
+                        text=True,
+                        timeout=300
+                    )
+                    response = {'success': result.returncode == 0, 'output': result.stdout, 'error': result.stderr}
+            except Exception as e:
+                response = {'success': False, 'error': str(e)}
+            
+            self.wfile.write(json.dumps(response).encode())
         else:
             self.send_response(404)
             self.end_headers()

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { fetchLinks, fetchStats, startDownload, startGrabber, addLink } from './api/api';
+import { fetchLinks, fetchStats, startDownload, startGrabber, addLink, downloadSingle } from './api/api';
 import './App.css';
 
 const statusLabels = {
@@ -17,6 +17,7 @@ function App() {
   const [message, setMessage] = useState('');
   const [activeTab, setActiveTab] = useState('links');
   const [linkInput, setLinkInput] = useState('');
+  const [downloadingLink, setDownloadingLink] = useState(null);
 
   const loadData = async () => {
     try {
@@ -85,6 +86,23 @@ function App() {
     if (filepath) {
       window.open(filepath, '_blank');
     }
+  };
+
+  const handleDownloadSingle = async (linkUrl) => {
+    setDownloadingLink(linkUrl);
+    setMessage('Downloading...');
+    try {
+      const result = await downloadSingle(linkUrl);
+      if (result.success) {
+        setMessage('Download complete!');
+      } else {
+        setMessage(`Error: ${result.error}`);
+      }
+      await loadData();
+    } catch (err) {
+      setMessage('Error: Could not download');
+    }
+    setDownloadingLink(null);
   };
 
   return (
@@ -185,14 +203,24 @@ function App() {
                       </a>
                     </td>
                     <td className="timestamp">{link.timestamp}</td>
-                    <td>
-                      <button 
-                        className="btn-open"
-                        disabled={!link.filepath || link.status !== 'done'}
-                        onClick={() => openVideo(link.filepath)}
-                      >
-                        Open Video
-                      </button>
+                    <td className="actions-cell">
+                      {(link.status === 'pending' || link.status === 'failed') && (
+                        <button 
+                          className="btn-download"
+                          disabled={downloadingLink === link.link}
+                          onClick={() => handleDownloadSingle(link.link)}
+                        >
+                          {downloadingLink === link.link ? 'Downloading...' : 'Download'}
+                        </button>
+                      )}
+                      {link.status === 'done' && link.filepath && (
+                        <button 
+                          className="btn-open"
+                          onClick={() => openVideo(link.filepath)}
+                        >
+                          Open Video
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ))}
