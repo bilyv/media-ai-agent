@@ -19,3 +19,12 @@ export const startGrabber = async () => {
   const res = await fetch(`${API_BASE}/grab`, { method: 'POST' });
   return res.json();
 };
+
+export const addLink = async (link) => {
+  const res = await fetch(`${API_BASE}/add-link`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ link })
+  });
+  return res.json();
+};

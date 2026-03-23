@@ -99,6 +99,43 @@ class APIHandler(BaseHTTPRequestHandler):
                 response = {'success': False, 'error': str(e)}
             
             self.wfile.write(json.dumps(response).encode())
+            
+        elif self.path == '/api/add-link':
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json')
+            self.send_cors_headers()
+            self.end_headers()
+            
+            try:
+                content_length = int(self.headers.get('Content-Length', 0))
+                post_data = self.rfile.read(content_length).decode('utf-8')
+                data = json.loads(post_data)
+                link = data.get('link', '').strip()
+                
+                if not link:
+                    response = {'success': False, 'error': 'No link provided'}
+                else:
+                    existing_links = set()
+                    if CSV_FILE.exists():
+                        with open(CSV_FILE, 'r', encoding='utf-8') as f:
+                            reader = csv.DictReader(f)
+                            existing_links = {row['link'] for row in reader}
+                    
+                    if link in existing_links:
+                        response = {'success': False, 'error': 'Link already exists'}
+                    else:
+                        file_exists = CSV_FILE.exists()
+                        with open(CSV_FILE, 'a', newline='', encoding='utf-8') as f:
+                            writer = csv.writer(f)
+                            if not file_exists:
+                                writer.writerow(['link', 'status', 'filepath', 'timestamp'])
+                            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                            writer.writerow([link, 'pending', '', timestamp])
+                        response = {'success': True, 'message': 'Link added successfully'}
+            except Exception as e:
+                response = {'success': False, 'error': str(e)}
+            
+            self.wfile.write(json.dumps(response).encode())
         else:
             self.send_response(404)
             self.end_headers()

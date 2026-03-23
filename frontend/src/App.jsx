@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { fetchLinks, fetchStats, startDownload, startGrabber } from './api/api';
+import { fetchLinks, fetchStats, startDownload, startGrabber, addLink } from './api/api';
 import './App.css';
 
 const statusLabels = {
@@ -16,6 +16,7 @@ function App() {
   const [downloading, setDownloading] = useState(false);
   const [message, setMessage] = useState('');
   const [activeTab, setActiveTab] = useState('links');
+  const [linkInput, setLinkInput] = useState('');
 
   const loadData = async () => {
     try {
@@ -59,6 +60,25 @@ function App() {
       setMessage('Error: Could not start grabber');
     }
     setLoading(false);
+  };
+
+  const handleAddLink = async (e) => {
+    e.preventDefault();
+    if (!linkInput.trim()) return;
+    
+    setMessage('Adding link...');
+    try {
+      const result = await addLink(linkInput.trim());
+      if (result.success) {
+        setMessage('Link added successfully!');
+        setLinkInput('');
+        await loadData();
+      } else {
+        setMessage(result.error || 'Failed to add link');
+      }
+    } catch (err) {
+      setMessage('Error: Could not add link');
+    }
   };
 
   const openVideo = (filepath) => {
@@ -124,9 +144,23 @@ function App() {
 
       {activeTab === 'links' && (
         <div className="links-list">
+          <div className="add-link-section">
+            <h2>Add Link</h2>
+            <form onSubmit={handleAddLink} className="add-link-form">
+              <input
+                type="text"
+                placeholder="Paste Instagram post/reel URL here..."
+                value={linkInput}
+                onChange={(e) => setLinkInput(e.target.value)}
+                className="link-input"
+              />
+              <button type="submit" className="btn btn-primary">Add Link</button>
+            </form>
+          </div>
+
           <h2>All Links ({links.length})</h2>
           {links.length === 0 ? (
-            <p className="empty">No links found. Start grabber and copy some Instagram URLs!</p>
+            <p className="empty">No links found. Add a link above or use the clipboard grabber!</p>
           ) : (
             <table>
               <thead>
