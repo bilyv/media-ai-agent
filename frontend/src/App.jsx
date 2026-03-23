@@ -2,18 +2,11 @@ import { useState, useEffect } from 'react';
 import { fetchLinks, fetchStats, startDownload, startGrabber } from './api/api';
 import './App.css';
 
-const statusColors = {
-  pending: '#f59e0b',
-  downloading: '#3b82f6',
-  done: '#22c55e',
-  failed: '#ef4444'
-};
-
 const statusLabels = {
   pending: 'Pending',
   downloading: 'Downloading',
   done: 'Done',
-  failed: 'Failed'
+  failed: 'Failed to download'
 };
 
 function App() {
@@ -68,11 +61,17 @@ function App() {
     setLoading(false);
   };
 
+  const openVideo = (filepath) => {
+    if (filepath) {
+      window.open(filepath, '_blank');
+    }
+  };
+
   return (
     <div className="app">
       <header className="header">
-        <h1>Elevate Agency Tools</h1>
-        <p>Instagram Download Manager</p>
+        <h1>MediaAI Agent</h1>
+        <p>Autonomous Media Management Platform</p>
       </header>
 
       <nav className="nav">
@@ -93,19 +92,19 @@ function App() {
       {message && <div className="message">{message}</div>}
 
       <div className="stats-bar">
-        <div className="stat" style={{ borderColor: statusColors.pending }}>
+        <div className="stat">
           <span className="stat-value">{stats.pending}</span>
           <span className="stat-label">Pending</span>
         </div>
-        <div className="stat" style={{ borderColor: statusColors.downloading }}>
+        <div className="stat">
           <span className="stat-value">{stats.downloading}</span>
           <span className="stat-label">Downloading</span>
         </div>
-        <div className="stat" style={{ borderColor: statusColors.done }}>
+        <div className="stat">
           <span className="stat-value">{stats.done}</span>
           <span className="stat-label">Done</span>
         </div>
-        <div className="stat" style={{ borderColor: statusColors.failed }}>
+        <div className="stat">
           <span className="stat-value">{stats.failed}</span>
           <span className="stat-label">Failed</span>
         </div>
@@ -134,18 +133,15 @@ function App() {
                 <tr>
                   <th>Status</th>
                   <th>Link</th>
-                  <th>Timestamp</th>
-                  <th>File</th>
+                  <th>Date</th>
+                  <th>Video</th>
                 </tr>
               </thead>
               <tbody>
                 {links.map((link, i) => (
                   <tr key={i}>
                     <td>
-                      <span 
-                        className="badge" 
-                        style={{ backgroundColor: statusColors[link.status] || '#666' }}
-                      >
+                      <span className={`badge ${link.status}`}>
                         {statusLabels[link.status] || link.status}
                       </span>
                     </td>
@@ -154,8 +150,16 @@ function App() {
                         {link.link}
                       </a>
                     </td>
-                    <td>{link.timestamp}</td>
-                    <td>{link.filepath || '-'}</td>
+                    <td className="timestamp">{link.timestamp}</td>
+                    <td>
+                      <button 
+                        className="btn-open"
+                        disabled={!link.filepath || link.status !== 'done'}
+                        onClick={() => openVideo(link.filepath)}
+                      >
+                        Open Video
+                      </button>
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -169,28 +173,28 @@ function App() {
           <h2>Quick Stats</h2>
           <div className="stats-grid">
             <div className="stat-card">
-              <div className="stat-icon" style={{ color: statusColors.pending }}>⏳</div>
+              <div className="stat-icon">⏳</div>
               <div className="stat-info">
                 <span className="stat-number">{stats.pending}</span>
                 <span className="stat-text">Waiting to download</span>
               </div>
             </div>
             <div className="stat-card">
-              <div className="stat-icon" style={{ color: statusColors.done }}>✅</div>
+              <div className="stat-icon">✓</div>
               <div className="stat-info">
                 <span className="stat-number">{stats.done}</span>
                 <span className="stat-text">Successfully downloaded</span>
               </div>
             </div>
             <div className="stat-card">
-              <div className="stat-icon" style={{ color: statusColors.failed }}>❌</div>
+              <div className="stat-icon">✗</div>
               <div className="stat-info">
                 <span className="stat-number">{stats.failed}</span>
                 <span className="stat-text">Failed downloads</span>
               </div>
             </div>
             <div className="stat-card">
-              <div className="stat-icon" style={{ color: '#8b5cf6' }}>📊</div>
+              <div className="stat-icon">◆</div>
               <div className="stat-info">
                 <span className="stat-number">{links.length}</span>
                 <span className="stat-text">Total links tracked</span>
