@@ -1,0 +1,21 @@
+const API_BASE = 'http://localhost:5000/api';
+
+export const fetchLinks = async () => {
+  const res = await fetch(`${API_BASE}/links`);
+  return res.json();
+};
+
+export const fetchStats = async () => {
+  const res = await fetch(`${API_BASE}/stats`);
+  return res.json();
+};
+
+export const startDownload = async () => {
+  const res = await fetch(`${API_BASE}/download`, { method: 'POST' });
+  return res.json();
+};
+
+export const startGrabber = async () => {
+  const res = await fetch(`${API_BASE}/grab`, { method: 'POST' });
+  return res.json();
+};
